@@ -34,13 +34,18 @@ def image_liniarization(imgs):
     return imgs.reshape((imgs.shape[0], -1))
 
 
-def load_images(n_classes=10, loc="train"):
-    """Load images and labels + shuffle"""
+def load_images(n_classes=10, loc="train", as_pil=False):
+    """Load images and labels + shuffle
+    if `as_pil` is True return directly the PIL images
+    otherwise return float numpy ndarrays
+    """
     imgs_with_labels = []
     for c in range(n_classes):
         for filename in glob.glob(f"dataset/{loc}/{c}/*"):
-            img = np.array(Image.open(filename))
-            img = skimage.img_as_float(img)
+            img = Image.open(filename)
+            if not as_pil:
+                img = np.array(img)
+                img = skimage.img_as_float(img)
             imgs_with_labels.append((img, c))
     # deterministic shuffling
     random.Random(RANDOM_SEED).shuffle(imgs_with_labels)
@@ -49,14 +54,14 @@ def load_images(n_classes=10, loc="train"):
     return imgs, labels
 
 
-def load_train_images(n_classes=10):
+def load_train_images(n_classes=10, as_pil=False):
     """Return train images and their labels, after shuffling"""
-    return load_images(n_classes=n_classes, loc="train")
+    return load_images(n_classes=n_classes, loc="train", as_pil=as_pil)
 
 
-def load_test_images(n_classes=10):
+def load_test_images(n_classes=10, as_pil=False):
     """Return test images and their labels, after shuffling"""
-    return load_images(n_classes=n_classes, loc="test")
+    return load_images(n_classes=n_classes, loc="test", as_pil=as_pil)
 
 
 def load_images_cv_grayscale(n_classes=10, loc="train"):
