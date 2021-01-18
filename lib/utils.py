@@ -23,9 +23,9 @@ def get_mean_img(imgs):
     return np.mean(imgs, axis=0)
 
 
-def basic_imgs_normalization(imgs):
+def basic_imgs_normalization(imgs, mean_img=None):
     """Compute and subtract the mean image from the list of images"""
-    mean_img = get_mean_img(imgs)
+    mean_img = get_mean_img(imgs) if mean_img is None else mean_img
     return imgs - mean_img
 
 
@@ -64,13 +64,16 @@ def load_test_images(n_classes=10, as_pil=False):
     return load_images(n_classes=n_classes, loc="test", as_pil=as_pil)
 
 
-def load_images_cv_grayscale(n_classes=10, loc="train"):
+def load_images_cv_grayscale(n_classes=10, loc="train", grayscale=True):
     """Load images as opencv grayscale images and labels + shuffle"""
     imgs_with_labels = []
     for c in range(n_classes):
         for filename in glob.glob(f"dataset/{loc}/{c}/*"):
             img = cv2.imread(filename)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            if grayscale:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            else:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             imgs_with_labels.append((img, c))
     # deterministic shuffling
     random.Random(RANDOM_SEED).shuffle(imgs_with_labels)
@@ -79,15 +82,19 @@ def load_images_cv_grayscale(n_classes=10, loc="train"):
     return imgs, labels
 
 
-def load_train_images_cv_grayscale(n_classes=10):
+def load_train_images_cv_grayscale(n_classes=10, grayscale=True):
     """Return train images as opencv grayscale images and their labels,
     after shuffling
     """
-    return load_images_cv_grayscale(n_classes=n_classes, loc="train")
+    return load_images_cv_grayscale(
+        n_classes=n_classes, loc="train", grayscale=grayscale
+    )
 
 
-def load_test_images_cv_grayscale(n_classes=10):
+def load_test_images_cv_grayscale(n_classes=10, grayscale=True):
     """Return test images as opencv grayscale images and their labels,
     after shuffling
     """
-    return load_images_cv_grayscale(n_classes=n_classes, loc="test")
+    return load_images_cv_grayscale(
+        n_classes=n_classes, loc="test", grayscale=grayscale
+    )
